@@ -123,48 +123,63 @@ The following table shows the methods of the `TreeWrapper` class:
 from precision_tree.nodes import DecisionNode, ChanceNode, PayoffNode
 from precision_tree.tree import TreeWrapper
 
-root = DecisionNode("Start Decision")
 
-# Big Factory
-big_factory = ChanceNode("Big Factory", cost=700, years=5)
-high_demand = PayoffNode("High Demand", 280)
-low_demand = PayoffNode("Low Demand", -80)
-big_factory.add_branch("High Demand", high_demand, 0.8)
-big_factory.add_branch("Low Demand", low_demand, 0.2)
+root = DecisionNode("Decision")
 
-# Small Factory
-small_factory = ChanceNode("Small Factory", cost=300, years=5)
-high_demand_small = PayoffNode("High Demand Small", 180)
-low_demand_small = PayoffNode("Low Demand Small", -55)
-small_factory.add_branch("High Demand", high_demand_small, 0.8)
-small_factory.add_branch("Low Demand", low_demand_small, 0.2)
+# Decision Node Without Analytics
+without_analytics = DecisionNode("Without Analytics")
 
-# Stop by Year
-stop_by_year = DecisionNode("Stop by Year")
-negative_info = PayoffNode("Negative Info", 0)
+big_factory = ChanceNode("Big Factory 1", cost=0, years=1)
+big_factory.add_branch(label="Favorable P(0.7)", child=PayoffNode("Favorable 1", 200), probability=0.7)
+big_factory.add_branch(label="Unfavorable P(0.3)", child=PayoffNode("Unfavorable 1", -180), probability=0.3)
 
-positive_info = DecisionNode("Positive Info")
-big_factory_1 = ChanceNode("Big Factory 1", cost=700, years=4)
-high_demand_1 = PayoffNode("High Demand 1", 280)
-low_demand_1 = PayoffNode("Low Demand 1", -80)
-big_factory_1.add_branch("High Demand 1", high_demand_1, 0.9)
-big_factory_1.add_branch("Low Demand 1", low_demand_1, 0.1)
+small_factory = ChanceNode("Small Factory 1", cost=0, years=1)
+small_factory.add_branch(label="Favorable P(0.7)", child=PayoffNode("Favorable 2", 100), probability=0.7)
+small_factory.add_branch(label="Unfavorable P(0.3)", child=PayoffNode("Unfavorable 2", -20), probability=0.3)
 
-small_factory_1 = ChanceNode("Small Factory 1", cost=300, years=4)
-high_demand_small_1 = PayoffNode("High Demand Small 1", 1800)
-low_demand_small_1 = PayoffNode("Low Demand Small 1", -55)
-small_factory_1.add_branch("High Demand 1", high_demand_small_1, 0.9)
-small_factory_1.add_branch("Low Demand 1", low_demand_small_1, 0.1)
+without_analytics.add_branch(label="Big Factory", child=big_factory)
+without_analytics.add_branch(label="Small Factory", child=small_factory)
+without_analytics.add_branch(label="Sell Patent", child=PayoffNode("Sell Patent 1", 10))
 
-positive_info.add_branch("Big Factory", big_factory_1)
-positive_info.add_branch("Small Factory", small_factory_1)
+# Make Decision Node With Analytics
+with_analytics = ChanceNode("With Analytics", cost=8, years=1)
 
-stop_by_year.add_branch("Positive Info", positive_info, 0.7)
-stop_by_year.add_branch("Negative Info", negative_info, 0.3)
+# Positive Result
+positive_result = DecisionNode("Positive Result")
 
-root.add_branch("Big Factory", big_factory)
-root.add_branch("Small Factory", small_factory)
-root.add_branch("Stop by Year", stop_by_year)
+big_factory_positive = ChanceNode("Big Factory 2", cost=0, years=1)
+big_factory_positive.add_branch(label="Favorable", child=PayoffNode("Favorable 3", 200), probability=0.81)
+big_factory_positive.add_branch(label="Unfavorable", child=PayoffNode("Unfavorable 3", -180), probability=0.19)
+
+small_factory_positive = ChanceNode("Small Factory 2", cost=0, years=1)
+small_factory_positive.add_branch(label="Favorable", child=PayoffNode("Favorable 4", 100), probability=0.81)
+small_factory_positive.add_branch(label="Unfavorable", child=PayoffNode("Unfavorable 4", -20), probability=0.19)
+
+positive_result.add_branch(label="Big Factory", child=big_factory_positive)
+positive_result.add_branch(label="Small Factory", child=small_factory_positive)
+positive_result.add_branch(label="Sell Patent", child=PayoffNode("Sell Patent 2", 10))
+
+# Negative Result
+negative_result = DecisionNode("Negative Result")
+
+big_factory_negative = ChanceNode("Big Factory 3", cost=0, years=1)
+big_factory_negative.add_branch(label="Favorable", child=PayoffNode("Favorable 5", 200), probability=0.28)
+big_factory_negative.add_branch(label="Unfavorable", child=PayoffNode("Unfavorable 5", -180), probability=0.72)
+
+small_factory_negative = ChanceNode("Small Factory 3", cost=0, years=1)
+small_factory_negative.add_branch(label="Favorable", child=PayoffNode("Favorable 6", 100), probability=0.28)
+small_factory_negative.add_branch(label="Unfavorable", child=PayoffNode("Unfavorable 6", -20), probability=0.72)
+
+negative_result.add_branch(label="Big Factory", child=big_factory_negative)
+negative_result.add_branch(label="Small Factory", child=small_factory_negative)
+negative_result.add_branch(label="Sell Patent", child=PayoffNode("Sell Patent 3", 10))
+
+with_analytics.add_branch(label="Positive Result", child=positive_result, probability=0.48)
+with_analytics.add_branch(label="Negative Result", child=negative_result, probability=0.52)
+
+# Add Branches to Root
+root.add_branch(label="With Analytics", child=with_analytics)
+root.add_branch(label="Without Analytics", child=without_analytics)
 
 tree = TreeWrapper(root)
 print(f"Expected Value of the best strategy: {tree.calculate_value():.2f}")

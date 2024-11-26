@@ -74,5 +74,5 @@ class DecisionNode(Node):
         self.value = best_value
         return best_value
 
-    def add_branch(self, label, child):
-        return super()._add_branch(label, child)
+    def add_branch(self, label, child, probability=None):
+        return super()._add_branch(label, child, probability)
