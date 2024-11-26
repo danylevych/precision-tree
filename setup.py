@@ -5,7 +5,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="precision-tree",
-    version="0.1.0",
+    version="0.1.1",
     author="Oleh Danylevych",
     author_email="danylevych123@gmail.com",
     description="Precision Tree Module for precision decision analysis, supporting custom nodes (Decision, Chance, and Payoff) with visualization and optimal path calculation.",

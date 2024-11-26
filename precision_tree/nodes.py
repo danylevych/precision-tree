@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from .enums import NodeShape
+from .enums import _NodeShape
 
 
 class Node(ABC):
     def __init__(self,
                  name: str,
-                 type: NodeShape =NodeShape.NONE,
+                 shape: _NodeShape =_NodeShape.NONE,
                  value: float =None,
                  cost: float =0,
                  years: int=None
@@ -14,21 +14,26 @@ class Node(ABC):
         self.value = value
         self.cost = cost
         self.years = years
-        self.type = type
+        self.shape = shape
+        self.type = type(self).__name__
 
         self.branches = []  # (child, label, probability)
 
-    def add_branch(self, label: str, child, probability: float =None):
+    def _add_branch(self, label: str, child, probability: float =None):
         self.branches.append((label, child, probability))
 
     @abstractmethod
     def calculate_value(self):
         pass
 
+    def __str__(self):
+        return f"{self.type}: name - {self.name}"
+
 
 class PayoffNode(Node):
     def __init__(self, name, value):
-        super().__init__(name=name, value=value, type=NodeShape.TRIANGLE)
+        super().__init__(name=name, value=value, shape=_NodeShape.TRIANGLE)
+        self.type = type(self).__name__
 
     def calculate_value(self):
         return self.value
@@ -36,7 +41,8 @@ class PayoffNode(Node):
 
 class ChanceNode(Node):
     def __init__(self, name, cost, years):
-        super().__init__(name=name, cost=cost, years=years, type=NodeShape.CIRCLE)
+        super().__init__(name=name, cost=cost, years=years, shape=_NodeShape.CIRCLE)
+        self.type = type(self).__name__
 
     def calculate_value(self):
         expected_value = -self.cost
@@ -46,11 +52,15 @@ class ChanceNode(Node):
         self.value = expected_value
         return expected_value
 
+    def add_branch(self, label, child, probability):
+        return super()._add_branch(label, child, probability)
+
 
 class DecisionNode(Node):
     def __init__(self, name, value=None):
-        super().__init__(name=name, value=value, type=NodeShape.BOX)
+        super().__init__(name=name, value=value, shape=_NodeShape.BOX)
         self.best_branch = None
+        self.type = type(self).__name__
 
     def calculate_value(self):
         best_value = float('-inf')
@@ -63,3 +73,6 @@ class DecisionNode(Node):
                 self.best_branch = branch_label
         self.value = best_value
         return best_value
+
+    def add_branch(self, label, child):
+        return super()._add_branch(label, child)

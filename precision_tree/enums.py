@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class NodeShape(Enum):
+class _NodeShape(Enum):
     NONE = "none"
     BOX = "box"
     CIRCLE = "circle"
